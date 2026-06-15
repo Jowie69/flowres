@@ -356,6 +356,343 @@ h1.hero-h .gr{background:var(--grad);-webkit-background-clip:text;-webkit-text-f
 .vs-item-ok::before{content:'✓';color:var(--g1);flex-shrink:0;font-size:.7rem;margin-top:.15rem}
 
 /* ══════════════════════════════
+   INTERACTIVE COST CALCULATOR
+   ══════════════════════════════ */
+.calc-container {
+  margin-top: 3.5rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: clamp(1.25rem, 3.5vw, 2.5rem);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+.calc-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--grad3);
+  background-size: 300% 100%;
+  animation: flow 6s linear infinite;
+  opacity: .8;
+}
+.calc-header {
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+.calc-title {
+  font-family: var(--fm);
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.calc-subtitle {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* Mode Switcher */
+.calc-modes {
+  display: inline-flex;
+  background: var(--bg);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  margin: 1.5rem auto 0;
+  position: relative;
+}
+.calc-mode-btn {
+  font-family: var(--fc);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.calc-mode-btn.active {
+  color: #07071a;
+  background: var(--g1);
+  box-shadow: 0 0 15px rgba(0, 255, 179, 0.35);
+  font-weight: 700;
+}
+
+/* Calculator Grid */
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .calc-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Left: Services selection */
+.calc-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.calc-service-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.2rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  user-select: none;
+}
+.calc-service-item:hover {
+  border-color: rgba(0, 255, 179, 0.25);
+  background: rgba(255, 255, 255, 0.015);
+  transform: translateX(3px);
+}
+.calc-service-item.selected {
+  border-color: rgba(0, 255, 179, 0.45);
+  background: rgba(0, 255, 179, 0.03);
+}
+.calc-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--muted2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+.calc-checkbox::after {
+  content: '✓';
+  color: #07071a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: none;
+}
+.calc-service-item.selected .calc-checkbox {
+  background: var(--g1);
+  border-color: var(--g1);
+  box-shadow: 0 0 10px rgba(0, 255, 179, 0.3);
+}
+.calc-service-item.selected .calc-checkbox::after {
+  display: block;
+}
+.calc-service-info {
+  flex: 1;
+}
+.calc-service-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.calc-service-name {
+  font-family: var(--fm);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.calc-service-rate {
+  font-family: var(--fc);
+  font-size: 0.75rem;
+  color: var(--g4);
+  font-weight: 600;
+}
+.calc-service-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Right: Results comparison */
+.calc-results-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.calc-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 640px) {
+  .calc-results {
+    grid-template-columns: 1fr;
+  }
+}
+.calc-res-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.25s ease;
+  min-height: 250px;
+}
+.calc-res-card:hover {
+  transform: translateY(-2px);
+}
+.calc-res-card.jowie-card {
+  border-color: rgba(0, 255, 179, 0.25);
+  background: radial-gradient(circle at top right, rgba(0, 255, 179, 0.02), var(--bg2));
+  box-shadow: 0 12px 40px rgba(0, 255, 179, 0.04);
+}
+.calc-res-card.jowie-card::before {
+  content: '⚡ BEST VALUE';
+  position: absolute;
+  top: -9px;
+  right: 15px;
+  font-family: var(--fc);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #07071a;
+  background: var(--g1);
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 12px rgba(0, 255, 179, 0.35);
+}
+.calc-res-label {
+  font-family: var(--fc);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+.calc-res-label.traditional {
+  color: #ff6b9d;
+}
+.calc-res-label.jowie {
+  color: var(--g1);
+}
+.calc-res-val-box {
+  margin: 0.75rem 0 1.25rem;
+}
+.calc-res-price {
+  font-family: var(--fm);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.calc-res-period {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 0.2rem;
+}
+.calc-res-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.calc-res-detail-item {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+.calc-res-detail-item.bad::before {
+  content: '✗';
+  color: #ff6b9d;
+  font-weight: bold;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.calc-res-detail-item.good::before {
+  content: '✓';
+  color: var(--g1);
+  font-weight: bold;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Savings Banner */
+.calc-savings-banner {
+  background: linear-gradient(135deg, rgba(0, 255, 179, 0.06), rgba(99, 102, 241, 0.06));
+  border: 1px solid rgba(0, 255, 179, 0.25);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+}
+.calc-savings-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 255, 179, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.calc-savings-title {
+  font-family: var(--fm);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--g1);
+  letter-spacing: -0.01em;
+}
+.calc-savings-desc {
+  font-size: 0.82rem;
+  color: var(--text);
+  max-width: 540px;
+  line-height: 1.5;
+}
+.calc-savings-cta {
+  margin-top: 0.5rem;
+  font-family: var(--fm);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #07071a;
+  background: var(--grad);
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.6rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.02em;
+}
+.calc-savings-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 255, 179, 0.4), 0 0 40px rgba(99, 102, 241, 0.2);
+}
+
+/* ══════════════════════════════
    REMOTE WORK SETUP
 ══════════════════════════════ */
 #remote-setup{background:var(--bg2);border-top:1px solid var(--border)}
@@ -564,6 +901,99 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
 .f-contact-label{font-family:var(--fc);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block}
 .f-contact-val{font-size:.82rem;color:var(--text)}
 .founder-cta-row{display:flex;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap}
+
+/* CALCULATOR MODAL CSS */
+#calc-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+  backdrop-filter: blur(12px);
+}
+#calc-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.calc-modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  max-width: 1000px;
+  width: 100%;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  position: relative;
+  transform: translateY(20px) scale(.96);
+  transition: .3s;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+#calc-modal.open .calc-modal-box {
+  transform: translateY(0) scale(1);
+}
+.calc-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .9rem;
+  color: var(--muted);
+  transition: .18s;
+}
+.calc-modal-close:hover {
+  border-color: var(--g1);
+  color: var(--g1);
+  background: rgba(0,255,179,.12);
+}
+@media (max-width: 480px) {
+  .calc-modal-box {
+    padding: 2.5rem 1rem 1.5rem;
+  }
+}
+.calc-modal-box::-webkit-scrollbar {
+  width: 5px;
+}
+.calc-modal-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+.calc-modal-box::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.calc-modal-box::-webkit-scrollbar-thumb:hover {
+  background: var(--g1);
+}
+
+/* Override calculator inner container inside modal wrapper to remove nested cards UI */
+.calc-modal-box .calc-container {
+  margin-top: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+.calc-modal-box .calc-container::before {
+  display: none;
+}
 
 /* BOOK MODAL */
 #book-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:3000;
@@ -1261,6 +1691,125 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
         <div class="vs-item vs-item-ok">Scales with your needs over time</div>
       </div>
     </div>
+
+    <!-- ══ Interactive Cost Calculator ══ -->
+    <div id="inline-calc-placeholder"></div>
+    <div class="calc-container rev">
+      <div class="calc-header">
+        <div class="sec-label" style="justify-content:center; margin-bottom:0.5rem">ROI Calculator</div>
+        <h3 class="calc-title">Interactive Savings Calculator</h3>
+        <p class="calc-subtitle">Select the skills you need to compare the cost of hiring individual specialists vs. partnering with me as a multi-skilled Technical VA.</p>
+        
+        <div class="calc-modes">
+          <button class="calc-mode-btn active" id="btn-monthly" onclick="setCalcMode('monthly')">Monthly Salary</button>
+          <button class="calc-mode-btn" id="btn-hourly" onclick="setCalcMode('hourly')">Freelance / Hourly</button>
+        </div>
+      </div>
+
+      <div class="calc-grid">
+        <!-- Left: Services Selection -->
+        <div class="calc-services-list">
+          <div class="calc-service-item selected" data-service="dev" onclick="toggleCalcService('dev', this)">
+            <div class="calc-checkbox"></div>
+            <div class="calc-service-info">
+              <div class="calc-service-header-row">
+                <span class="calc-service-name">Web Development</span>
+                <span class="calc-service-rate" id="rate-dev">$4,500/mo</span>
+              </div>
+              <p class="calc-service-desc">Custom web apps, databases, landing pages, and ongoing site maintenance.</p>
+            </div>
+          </div>
+          
+          <div class="calc-service-item selected" data-service="design" onclick="toggleCalcService('design', this)">
+            <div class="calc-checkbox"></div>
+            <div class="calc-service-info">
+              <div class="calc-service-header-row">
+                <span class="calc-service-name">UI/UX & Graphic Design</span>
+                <span class="calc-service-rate" id="rate-design">$3,500/mo</span>
+              </div>
+              <p class="calc-service-desc">Funnels, brochures, brand kits, and graphics for ads and social media.</p>
+            </div>
+          </div>
+
+          <div class="calc-service-item selected" data-service="editor" onclick="toggleCalcService('editor', this)">
+            <div class="calc-checkbox"></div>
+            <div class="calc-service-info">
+              <div class="calc-service-header-row">
+                <span class="calc-service-name">Video Production</span>
+                <span class="calc-service-rate" id="rate-editor">$2,500/mo</span>
+              </div>
+              <p class="calc-service-desc">Video editing for YouTube Shorts, Reels, ads, and color correction.</p>
+            </div>
+          </div>
+
+          <div class="calc-service-item selected" data-service="auto" onclick="toggleCalcService('auto', this)">
+            <div class="calc-checkbox"></div>
+            <div class="calc-service-info">
+              <div class="calc-service-header-row">
+                <span class="calc-service-name">AI & Workflows Automation</span>
+                <span class="calc-service-rate" id="rate-auto">$4,000/mo</span>
+              </div>
+              <p class="calc-service-desc">n8n/Zapier/Make workflows, AI assistant routing, and API integrations.</p>
+            </div>
+          </div>
+
+          <div class="calc-service-item selected" data-service="va" onclick="toggleCalcService('va', this)">
+            <div class="calc-checkbox"></div>
+            <div class="calc-service-info">
+              <div class="calc-service-header-row">
+                <span class="calc-service-name">Technical VA & Support</span>
+                <span class="calc-service-rate" id="rate-va">$2,000/mo</span>
+              </div>
+              <p class="calc-service-desc">CRM pipeline management, booking scheduling, and software coordination.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Results Card Grid -->
+        <div class="calc-results-wrap">
+          <div class="calc-results">
+            <!-- Card 1: Traditional Hiring -->
+            <div class="calc-res-card">
+              <div>
+                <span class="calc-res-label traditional">Hiring Individually</span>
+                <div class="calc-res-val-box">
+                  <span class="calc-res-price" id="calc-traditional-price">$16,500</span>
+                  <span class="calc-res-period" id="calc-traditional-period">/ month salary</span>
+                </div>
+              </div>
+              <div class="calc-res-details">
+                <div class="calc-res-detail-item bad">Multiple salaries & software seats</div>
+                <div class="calc-res-detail-item bad" id="calc-coord-overhead">High management overhead</div>
+                <div class="calc-res-detail-item bad">Project communication delays</div>
+              </div>
+            </div>
+
+            <!-- Card 2: Hiring Jowie -->
+            <div class="calc-res-card jowie-card">
+              <div>
+                <span class="calc-res-label jowie">Hiring Me</span>
+                <div class="calc-res-val-box">
+                  <span class="calc-res-price" id="calc-jowie-price">$2,400</span>
+                  <span class="calc-res-period" id="calc-jowie-period">/ month retainer</span>
+                </div>
+              </div>
+              <div class="calc-res-details">
+                <div class="calc-res-detail-item good">One multi-skilled technical partner</div>
+                <div class="calc-res-detail-item good">Zero management overhead</div>
+                <div class="calc-res-detail-item good">Integrated, zero-delay workflows</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Savings Banner -->
+          <div class="calc-savings-banner">
+            <div class="calc-savings-title">You Save: <span id="calc-savings-amount">$14,100</span>/month (<span id="calc-savings-percent">85%</span>)</div>
+            <p class="calc-savings-desc">Plus, reclaim approximately <strong id="calc-hours-saved">15 hours</strong> per week in management, onboarding, and coordination time.</p>
+            <button class="calc-savings-cta" onclick="openBook()">⚡ Reclaim Your Budget & Time</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1798,6 +2347,14 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
   </div>
 </div>
 
+<!-- ══ SAVINGS CALCULATOR MODAL ══ -->
+<div id="calc-modal" onclick="closeCalcModalOnBg(event)">
+  <div class="calc-modal-box">
+    <div class="calc-modal-close" onclick="closeCalcModal()">✕</div>
+    <div id="modal-calc-placeholder"></div>
+  </div>
+</div>
+
 <!-- Background Music -->
 <audio id="bg-music" src="flowres_vo.MP3" loop></audio>
 
@@ -1906,6 +2463,36 @@ function closeFounderOnBg(e) { if (e.target.id === 'founder-modal') closeFounder
 function openBook() { document.getElementById('book-modal').classList.add('open'); document.body.style.overflow='hidden'; }
 function closeBook() { document.getElementById('book-modal').classList.remove('open'); document.body.style.overflow=''; }
 function closeBookOnBg(e) { if (e.target.id === 'book-modal') closeBook(); }
+
+/* ══ SAVINGS CALCULATOR MODAL ══ */
+let calcModalShown = false;
+function showCalcModal() {
+  const modal = document.getElementById('calc-modal');
+  const placeholder = document.getElementById('modal-calc-placeholder');
+  const container = document.querySelector('.calc-container');
+  if (modal && placeholder && container) {
+    placeholder.appendChild(container);
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    calcModalShown = true;
+    updateCalculator();
+  }
+}
+function closeCalcModal() {
+  const modal = document.getElementById('calc-modal');
+  const inlinePlaceholder = document.getElementById('inline-calc-placeholder');
+  const container = document.querySelector('.calc-container');
+  if (modal && inlinePlaceholder && container) {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('calc_modal_closed', 'true');
+    setTimeout(() => {
+      inlinePlaceholder.appendChild(container);
+      updateCalculator();
+    }, 300);
+  }
+}
+function closeCalcModalOnBg(e) { if (e.target.id === 'calc-modal') closeCalcModal(); }
 
 /* ══ NAV ══ */
 function toggleNav() {
@@ -2054,7 +2641,154 @@ function updateMusicUI() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', initBgMusic);
+/* ══ INTERACTIVE COST CALCULATOR LOGIC ══ */
+let calcMode = 'monthly';
+const selectedServices = new Set(['dev', 'design', 'editor', 'auto', 'va']);
+
+const calcData = {
+  dev: { salary: 4500, hourly: 65 },
+  design: { salary: 3500, hourly: 50 },
+  editor: { salary: 2500, hourly: 40 },
+  auto: { salary: 4000, hourly: 75 },
+  va: { salary: 2000, hourly: 30 }
+};
+
+const jowieHourlyRates = {
+  0: 0,
+  1: 35,
+  2: 30,
+  3: 28,
+  4: 26,
+  5: 25
+};
+
+const jowieMonthlyRates = {
+  0: 0,
+  1: 1200,
+  2: 1500,
+  3: 1800,
+  4: 2100,
+  5: 2400
+};
+
+function setCalcMode(mode) {
+  calcMode = mode;
+  document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+  document.getElementById('btn-hourly').classList.toggle('active', mode === 'hourly');
+  
+  // Update rates display in list
+  for (const s in calcData) {
+    const rateEl = document.getElementById(`rate-${s}`);
+    if (rateEl) {
+      if (mode === 'monthly') {
+        rateEl.textContent = `$${calcData[s].salary.toLocaleString()}/mo`;
+      } else {
+        rateEl.textContent = `$${calcData[s].hourly}/hr`;
+      }
+    }
+  }
+
+  // Update periods
+  const tradPeriod = document.getElementById('calc-traditional-period');
+  const jowiePeriod = document.getElementById('calc-jowie-period');
+  if (mode === 'monthly') {
+    tradPeriod.textContent = '/ month salary';
+    jowiePeriod.textContent = '/ month retainer';
+  } else {
+    tradPeriod.textContent = '/ month (40h/service)';
+    jowiePeriod.textContent = '/ month (bundled rate)';
+  }
+
+  updateCalculator();
+}
+
+function toggleCalcService(service, el) {
+  if (selectedServices.has(service)) {
+    if (selectedServices.size > 1) {
+      selectedServices.delete(service);
+      el.classList.remove('selected');
+    }
+  } else {
+    selectedServices.add(service);
+    el.classList.add('selected');
+  }
+  updateCalculator();
+}
+
+function updateCalculator() {
+  let traditionalTotal = 0;
+  let jowieTotal = 0;
+  const count = selectedServices.size;
+
+  if (calcMode === 'monthly') {
+    selectedServices.forEach(s => {
+      traditionalTotal += calcData[s].salary;
+    });
+    jowieTotal = jowieMonthlyRates[count] || 0;
+  } else {
+    // Hourly: assume 40 hours per month per selected service
+    selectedServices.forEach(s => {
+      traditionalTotal += calcData[s].hourly * 40;
+    });
+    const hourlyRate = jowieHourlyRates[count] || 0;
+    jowieTotal = hourlyRate * (count * 40);
+  }
+
+  const savingsTotal = Math.max(0, traditionalTotal - jowieTotal);
+  const savingsPercent = traditionalTotal > 0 ? Math.round((savingsTotal / traditionalTotal) * 100) : 0;
+  const hoursSavedValue = count * 3;
+
+  // Animate the value updates
+  animateValue('calc-traditional-price', traditionalTotal);
+  animateValue('calc-jowie-price', jowieTotal);
+  animateValue('calc-savings-amount', savingsTotal);
+  
+  document.getElementById('calc-savings-percent').textContent = `${savingsPercent}%`;
+  document.getElementById('calc-hours-saved').textContent = `${hoursSavedValue} hours`;
+  
+  const coordOverhead = document.getElementById('calc-coord-overhead');
+  if (coordOverhead) {
+    coordOverhead.textContent = count > 1 ? `High overhead (${count} contacts)` : 'Moderate overhead (1 contact)';
+  }
+}
+
+function animateValue(id, targetValue) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  
+  const currText = el.textContent.replace(/[^0-9.-]+/g, "");
+  const start = parseFloat(currText) || 0;
+  const duration = 400;
+  const startTime = performance.now();
+  
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Ease out quad
+    const ease = progress * (2 - progress);
+    const currVal = start + (targetValue - start) * ease;
+    
+    el.textContent = `$${Math.round(currVal).toLocaleString()}`;
+    
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  requestAnimationFrame(update);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initBgMusic();
+  setCalcMode('monthly');
+  
+  // Trigger savings calculator modal after 8 seconds
+  setTimeout(() => {
+    if (!sessionStorage.getItem('calc_modal_closed') && !document.getElementById('calc-modal').classList.contains('open')) {
+      showCalcModal();
+    }
+  }, 8000);
+});
 </script>
 </body>
 </html>
