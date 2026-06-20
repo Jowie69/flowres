@@ -1055,67 +1055,153 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
   bottom: 1.5rem;
   left: 1.5rem;
   z-index: 501;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
   background: rgba(13, 13, 36, 0.75);
   border: 1px solid var(--border2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  padding: 0.45rem 0.8rem;
-  border-radius: 30px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
-}
-.music-widget:hover {
-  border-color: var(--g1);
-  box-shadow: 0 8px 32px rgba(0, 255, 179, 0.15), 0 0 16px rgba(0, 255, 179, 0.05);
-}
-.music-toggle-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0;
-  color: var(--text);
-  outline: none;
-}
-.music-state-icon {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* Pulsing Outer Rings */
+.music-widget::before,
+.music-widget::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  transition: border-color 0.3s ease;
+}
+
+/* Pulse Animations when Playing */
+.music-widget.playing::before {
+  border: 1px solid var(--g1);
+  animation: musicPulse 2s cubic-bezier(0.24, 0, 0, 1) infinite;
+}
+.music-widget.playing::after {
+  border: 1px solid var(--g1);
+  animation: musicPulse 2s cubic-bezier(0.24, 0, 0, 1) infinite;
+  animation-delay: 1s;
+}
+
+/* Slower gentle Pulse when Paused (to encourage users to play) */
+.music-widget.paused::before {
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  animation: musicPulseMuted 3s cubic-bezier(0.24, 0, 0, 1) infinite;
+}
+
+@keyframes musicPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes musicPulseMuted {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+.music-widget:hover {
+  border-color: var(--g1);
+  transform: scale(1.08);
+  box-shadow: 0 8px 32px rgba(0, 255, 179, 0.2), 0 0 16px rgba(0, 255, 179, 0.1);
+}
+
+.music-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0;
+  color: var(--text);
+  outline: none;
+}
+
+.music-state-icon {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -3px; /* subtle adjustment to visually balance with visualizer */
+}
+
 .music-state-icon svg {
   width: 100%;
   height: 100%;
   fill: var(--text);
   transition: fill 0.2s ease;
 }
-.music-widget.playing .music-state-icon svg { fill: var(--g1); }
-.music-toggle-btn:hover .music-state-icon {
-  transform: scale(1.15);
+
+.music-widget.playing .music-state-icon svg { 
+  fill: var(--g1); 
 }
+
+.music-toggle-btn:hover .music-state-icon {
+  transform: scale(1.1);
+}
+
+/* Floating Visualizer */
 .music-visualizer {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  width: 16px;
-  height: 14px;
+  gap: 2.5px;
+  width: 14px;
+  height: 10px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
+
+.music-widget.paused .music-visualizer {
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px);
+  pointer-events: none;
+}
+
+.music-widget.playing .music-visualizer {
+  opacity: 0.85;
+  transform: translateX(-50%) translateY(0);
+}
+
 .music-visualizer .bar {
-  width: 3px;
+  width: 2.5px;
   height: 100%;
   background: var(--grad);
   border-radius: 1px;
   transform-origin: bottom;
   transition: height 0.2s ease;
 }
+
 .music-widget.playing .music-visualizer .bar {
   animation: bounce 0.8s ease-in-out infinite alternate;
 }
@@ -1123,29 +1209,89 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
 .music-widget.playing .music-visualizer .bar:nth-child(2) { animation-delay: 0.3s; height: 45%; }
 .music-widget.playing .music-visualizer .bar:nth-child(3) { animation-delay: 0s; height: 60%; }
 
-.music-widget.paused .music-visualizer .bar {
-  height: 3px !important;
-  animation: none;
-}
 @keyframes bounce {
   0% { transform: scaleY(0.25); }
   100% { transform: scaleY(1.0); }
 }
-.music-tooltip {
+
+/* Floating label styling */
+.music-floating-text {
+  position: absolute;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 13, 36, 0.85);
+  border: 1px solid var(--border3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 8px;
   font-family: var(--fc);
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--text);
   white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  animation: textFloat 2.5s ease-in-out infinite;
+}
+
+/* Floating animation for text */
+@keyframes textFloat {
+  0% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -4px);
+  }
+  100% {
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Adjustments when hovered */
+.music-widget:hover .music-floating-text {
+  border-color: var(--g1);
+  color: var(--g1);
+  box-shadow: 0 4px 16px rgba(0, 255, 179, 0.15);
 }
 
 @media(max-width:480px){
   .fchip,.fc1,.fc2,.fc3,.fc4{display:none!important}
   .flow-bar-div{display:none}
   .flow-bar{justify-content:center}
-  .music-widget { bottom: 1rem; left: 1rem; padding: 0.35rem 0.65rem; }
-  #btt { bottom: 4.5rem; left: 1rem; }
+  .music-widget { 
+    bottom: 1rem; 
+    left: 1rem; 
+    width: 48px;
+    height: 48px;
+  }
+  .music-state-icon {
+    width: 18px;
+    height: 18px;
+    margin-top: -2px;
+  }
+  .music-visualizer {
+    bottom: 6px;
+    width: 12px;
+    height: 8px;
+    gap: 2px;
+  }
+  .music-visualizer .bar {
+    width: 2px;
+  }
+  .music-floating-text {
+    bottom: 58px;
+    font-size: 0.6rem;
+    padding: 3px 8px;
+  }
+  #btt { 
+    bottom: 4.5rem; 
+    left: 1rem; 
+  }
 }
 </style>
 </head>
@@ -1183,7 +1329,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
 <section id="hero">
   <div class="hero-inner">
     <div class="hero-text rev">
-      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Technical VA · AI Automation · Web Dev · Design · Video</div>
+      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Technical VA · AI Automation · Web Dev · Design · AI Video · Video Editing · YTA · FBA · AI UGC Tiktok Affiliate</div>
       <h1 class="hero-h">Your Technical<br><span class="gr">Right Hand</span></h1>
       <p class="hero-desc"><strong>Development, Design, Automation, Content Systems, AI Solutions, and Technical Support</strong> — All in One.</p>
       <p class="hero-desc2">Supporting businesses with websites, funnels, automation, content systems, design assets, and AI-powered workflows — so you don't need to hire five different people.</p>
@@ -1363,12 +1509,13 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
         <div class="srv-desc">Scalable content systems that produce and publish content automatically — grow your channel without the grind.</div>
         <ul class="srv-features">
           <li>YouTube Channel Automation</li>
+          <li>Tiktok Channel Automation</li>
           <li>Facebook Page Automation</li>
-          <li>AI Video Generation Pipelines</li>
+          <li>AI Video Generation Workflows</li>
           <li>Viral Content Systems</li>
           <li>Multi-Platform Auto-Publishing</li>
         </ul>
-        <div class="srv-stack"><span class="stag">n8n</span><span class="stag">AI Video</span><span class="stag">Zapier</span></div>
+        <div class="srv-stack"><span class="stag">n8n</span><span class="stag">Zapier</span><span class="stag">Magnific/ComfyUI</span></div>
       </div>
 
     </div>
@@ -1615,6 +1762,70 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
           <div class="demo-title">YouTube Shorts + Facebook Reels Creator</div>
           <div class="demo-desc">Auto-clips long-form content, adds captions, and publishes Shorts and Reels across YouTube and Facebook automatically.</div>
           <div class="demo-pills"><span class="dpill">N8N</span><span class="dpill">YouTube API</span><span class="dpill">Facebook</span></div>
+          <div class="demo-actions"><button class="demo-btn primary">View Workflow →</button></div>
+        </div>
+      </div>
+
+      <div class="card demo-card rev" data-category="content ai-automation video animation" onclick="openImg('ai-influencer-vid','AI Influencer Video Generator Workflow','01_AI Influencer Video Generator Workflow.png','Advanced AI workflow generating high-fidelity influencer videos. Combines ComfyUI for motion synthesis and Magnific AI for ultra-realistic upscaling and detail enhancement.','ComfyUI · Magnific AI · AI Influencer · Video Gen')">
+        <div class="card-top-bar"></div>
+        <div class="demo-thumb">
+          <img src="01_AI Influencer Video Generator Workflow.png" alt="AI Influencer Video Generator Workflow" loading="lazy"/>
+          <div class="demo-play"><div class="eye-ring">🔍</div></div>
+          <div class="demo-badge badge-content">ComfyUI</div>
+        </div>
+        <div class="demo-info">
+          <div class="demo-cat">Content Automation</div>
+          <div class="demo-title">AI Influencer Video Generator</div>
+          <div class="demo-desc">Generates high-fidelity AI influencer videos using ComfyUI motion synthesis and Magnific AI enhancement.</div>
+          <div class="demo-pills"><span class="dpill">ComfyUI</span><span class="dpill">Magnific AI</span><span class="dpill">AI Video</span><span class="dpill">SDXL</span></div>
+          <div class="demo-actions"><button class="demo-btn primary">View Workflow →</button></div>
+        </div>
+      </div>
+
+      <div class="card demo-card rev" data-category="content ai-automation video animation" onclick="openImg('ai-influencer-ugc','AI Influencer UGC Marketing Generator Workflow','02_AI Influencer UGC Marketing Generator Workflow.png','Automated user-generated content (UGC) marketing pipeline. Generates dynamic promotional and testimonial-style videos with consistent AI influencer assets and high-fidelity rendering.','ComfyUI · Magnific AI · UGC Marketing · Content Automation')">
+        <div class="card-top-bar"></div>
+        <div class="demo-thumb">
+          <img src="02_AI Influencer UGC Marketing Generator Workflow.png" alt="AI Influencer UGC Marketing Generator Workflow" loading="lazy"/>
+          <div class="demo-play"><div class="eye-ring">🔍</div></div>
+          <div class="demo-badge badge-content">ComfyUI</div>
+        </div>
+        <div class="demo-info">
+          <div class="demo-cat">Content Automation</div>
+          <div class="demo-title">AI Influencer UGC Marketing Generator</div>
+          <div class="demo-desc">Automated marketing pipeline generating testimonial-style videos with consistent AI influencers.</div>
+          <div class="demo-pills"><span class="dpill">ComfyUI</span><span class="dpill">Magnific AI</span><span class="dpill">UGC Video</span><span class="dpill">Marketing</span></div>
+          <div class="demo-actions"><button class="demo-btn primary">View Workflow →</button></div>
+        </div>
+      </div>
+
+      <div class="card demo-card rev" data-category="content ai-automation video animation" onclick="openImg('human-to-anime','Human to Anime Video Generator Workflow','03_Human to Anime Video Generator Workflow.png','High-fidelity style-transfer workflow that transforms real human footage into stylized anime animation while preserving fluid motion, facial expressions, and structure.','ComfyUI · Magnific AI · Style Transfer · Anime Video')">
+        <div class="card-top-bar"></div>
+        <div class="demo-thumb">
+          <img src="03_Human to Anime Video Generator Workflow.png" alt="Human to Anime Video Generator Workflow" loading="lazy"/>
+          <div class="demo-play"><div class="eye-ring">🔍</div></div>
+          <div class="demo-badge badge-content">ComfyUI</div>
+        </div>
+        <div class="demo-info">
+          <div class="demo-cat">Content Automation</div>
+          <div class="demo-title">Human to Anime Video Generator</div>
+          <div class="demo-desc">High-fidelity style-transfer workflow transforming real human footage into fluid, stylized anime animation.</div>
+          <div class="demo-pills"><span class="dpill">ComfyUI</span><span class="dpill">Magnific AI</span><span class="dpill">Style Transfer</span><span class="dpill">AnimateDiff</span></div>
+          <div class="demo-actions"><button class="demo-btn primary">View Workflow →</button></div>
+        </div>
+      </div>
+
+      <div class="card demo-card rev" data-category="content ai-automation video animation" onclick="openImg('ai-affiliate-ugc','AI Affiliate x UGC Video Generator Workflow','04_AI Affiliate x UGC Video Generator Workflow.png','High-conversion affiliate video generator. Combines realistic AI actors with UGC product footage, optimized for TikTok, Instagram Reels, and YouTube Shorts.','ComfyUI · Magnific AI · Affiliate Marketing · Short-form Video')">
+        <div class="card-top-bar"></div>
+        <div class="demo-thumb">
+          <img src="04_AI Affiliate x UGC Video Generator Workflow.png" alt="AI Affiliate x UGC Video Generator Workflow" loading="lazy"/>
+          <div class="demo-play"><div class="eye-ring">🔍</div></div>
+          <div class="demo-badge badge-content">ComfyUI</div>
+        </div>
+        <div class="demo-info">
+          <div class="demo-cat">Content Automation</div>
+          <div class="demo-title">AI Affiliate x UGC Video Generator</div>
+          <div class="demo-desc">High-conversion affiliate video generator combining realistic AI actors with product footage.</div>
+          <div class="demo-pills"><span class="dpill">ComfyUI</span><span class="dpill">Magnific AI</span><span class="dpill">Affiliate</span><span class="dpill">UGC</span></div>
           <div class="demo-actions"><button class="demo-btn primary">View Workflow →</button></div>
         </div>
       </div>
@@ -1874,6 +2085,10 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
       <div class="wf-card rev" data-wf-cat="appointment ai-agents" onclick="openImg('wf-appt','AI Appointment Setter','https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20AI%20Appointment%20Setter.png','Email → GPT-4 → Calendar booking','N8N · OpenAI · G Calendar')"><div class="wf-thumb"><img src="https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20AI%20Appointment%20Setter.png" loading="lazy" alt=""/></div><div class="wf-info"><div class="wf-t">AI Appointment Setter</div><div class="wf-d">Email → GPT-4 → Calendar booking</div></div></div>
       <div class="wf-card rev" data-wf-cat="ai-agents" onclick="openImg('wf-rag','RAG Supabase Agents','https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20RAG%20Agents.png','Docs → vector store → AI knowledge base','N8N · Supabase · OpenAI')"><div class="wf-thumb"><img src="https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20RAG%20Agents.png" loading="lazy" alt=""/></div><div class="wf-info"><div class="wf-t">RAG Supabase Agents</div><div class="wf-d">Docs → vector store → AI answers</div></div></div>
       <div class="wf-card rev" data-wf-cat="content" onclick="openImg('wf-yt','YouTube Shorts Creator','https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20Automated%20YouTube%20Shorts%20and%20Facebook%20Reels%20Creator.png','Auto-clip, caption & publish across platforms','N8N · YouTube · Facebook')"><div class="wf-thumb"><img src="https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/n8n%20-%20Automated%20YouTube%20Shorts%20and%20Facebook%20Reels%20Creator.png" loading="lazy" alt=""/></div><div class="wf-info"><div class="wf-t">YouTube Shorts + Reels Creator</div><div class="wf-d">Auto-clip, caption, publish</div></div></div>
+      <div class="wf-card rev" data-wf-cat="content" onclick="openImg('wf-influencer-vid','AI Influencer Video Generator Workflow','01_AI Influencer Video Generator Workflow.png','Advanced AI workflow generating high-fidelity influencer videos. Combines ComfyUI for motion synthesis and Magnific AI for ultra-realistic upscaling and detail enhancement.','ComfyUI · Magnific AI · AI Influencer · Video Gen')"><div class="wf-thumb"><img src="01_AI Influencer Video Generator Workflow.png" loading="lazy" alt="AI Influencer Video Generator Workflow"/></div><div class="wf-info"><div class="wf-t">AI Influencer Video Generator</div><div class="wf-d">ComfyUI motion & Magnific AI detail upscaling</div></div></div>
+      <div class="wf-card rev" data-wf-cat="content" onclick="openImg('wf-influencer-ugc','AI Influencer UGC Marketing Generator Workflow','02_AI Influencer UGC Marketing Generator Workflow.png','Automated user-generated content (UGC) marketing pipeline. Generates dynamic promotional and testimonial-style videos with consistent AI influencer assets and high-fidelity rendering.','ComfyUI · Magnific AI · UGC Marketing · Content Automation')"><div class="wf-thumb"><img src="02_AI Influencer UGC Marketing Generator Workflow.png" loading="lazy" alt="AI Influencer UGC Marketing Generator Workflow"/></div><div class="wf-info"><div class="wf-t">AI Influencer UGC Marketing</div><div class="wf-d">Promotional videos with consistent AI models</div></div></div>
+      <div class="wf-card rev" data-wf-cat="content" onclick="openImg('wf-human-to-anime','Human to Anime Video Generator Workflow','03_Human to Anime Video Generator Workflow.png','High-fidelity style-transfer workflow that transforms real human footage into stylized anime animation while preserving fluid motion, facial expressions, and structure.','ComfyUI · Magnific AI · Style Transfer · Anime Video')"><div class="wf-thumb"><img src="03_Human to Anime Video Generator Workflow.png" loading="lazy" alt="Human to Anime Video Generator Workflow"/></div><div class="wf-info"><div class="wf-t">Human to Anime Video Generator</div><div class="wf-d">Realistic to anime style transfer and synthesis</div></div></div>
+      <div class="wf-card rev" data-wf-cat="content" onclick="openImg('wf-ai-affiliate-ugc','AI Affiliate x UGC Video Generator Workflow','04_AI Affiliate x UGC Video Generator Workflow.png','High-conversion affiliate video generator. Combines realistic AI actors with UGC product footage, optimized for TikTok, Instagram Reels, and YouTube Shorts.','ComfyUI · Magnific AI · Affiliate Marketing · Short-form Video')"><div class="wf-thumb"><img src="04_AI Affiliate x UGC Video Generator Workflow.png" loading="lazy" alt="AI Affiliate x UGC Video Generator Workflow"/></div><div class="wf-info"><div class="wf-t">AI Affiliate x UGC Video Generator</div><div class="wf-d">Affiliate video synthesis for short-form platforms</div></div></div>
       <div class="wf-card rev" data-wf-cat="crm" onclick="openImg('wf-gmail','Gmail → Drive Auto-Sort','https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/Make%20-%20Auto%20Sort%20Gmail%20Attachments%20on%20Drive.png','AI classifies & organizes all attachments','Make.com · Gmail · Google Drive')"><div class="wf-thumb"><img src="https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/Make%20-%20Auto%20Sort%20Gmail%20Attachments%20on%20Drive.png" loading="lazy" alt=""/></div><div class="wf-info"><div class="wf-t">Gmail → Drive Auto-Sort</div><div class="wf-d">AI classifies all attachments</div></div></div>
       <div class="wf-card rev" data-wf-cat="crm" onclick="openImg('wf-xero','Xero → Asana Transactions','https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/Make%20-%20Automated%20Export%20Account%20Transactions%20from%20Xero%20_%20Upload%20CSV%20to%20Asana.png','Export transactions → CSV → Asana upload','Make.com · Xero · Asana')"><div class="wf-thumb"><img src="https://cdn.jsdelivr.net/gh/Jowie69/ai-automations@main/Make%20-%20Automated%20Export%20Account%20Transactions%20from%20Xero%20_%20Upload%20CSV%20to%20Asana.png" loading="lazy" alt=""/></div><div class="wf-info"><div class="wf-t">Xero → Asana Transactions</div><div class="wf-d">Automated finance reporting</div></div></div>
     </div>
@@ -2369,7 +2584,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem clam
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
     </span>
   </button>
-  <span class="music-tooltip">Play Music</span>
+  <span class="music-floating-text">Play</span>
 </div>
 
 <script>
@@ -2693,17 +2908,17 @@ function resumeBgMusicTemp() {
 }
 
 function updateMusicUI() {
-  const tooltip = document.querySelector('.music-tooltip');
+  const tooltip = document.querySelector('.music-floating-text');
   if (bgMusic.paused) {
     musicWidget.classList.remove('playing');
     musicWidget.classList.add('paused');
     musicIcon.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>';
-    if (tooltip) tooltip.textContent = 'Play Music';
+    if (tooltip) tooltip.textContent = 'Play';
   } else {
     musicWidget.classList.remove('paused');
     musicWidget.classList.add('playing');
     musicIcon.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
-    if (tooltip) tooltip.textContent = 'Pause Music';
+    if (tooltip) tooltip.textContent = 'Pause';
   }
 }
 
